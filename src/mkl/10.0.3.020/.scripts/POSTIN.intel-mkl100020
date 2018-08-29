@@ -1,0 +1,46 @@
+
+if [ "$RPM_INSTALL_PREFIX" = "" ] ; then
+    RPM_INSTALL_PREFIX=/opt/intel/mkl/10.0.3.020
+fi
+    
+INSTALL_DIR="$RPM_INSTALL_PREFIX"
+ENVDIR="$INSTALL_DIR/tools/environment"
+
+if [ -e "$ENVDIR" ]; then
+    tdir=$(echo "$INSTALL_DIR" | sed -e"s/\// /g")
+    new_dir=""
+    for dirn in $tdir; do
+	[ "x$dirn" == "x" ] || new_dir="$new_dir\/$dirn"
+    done
+    gresult=0
+    for envfile in $(ls $ENVDIR | grep mklvars); do
+	cp $ENVDIR/$envfile $ENVDIR/$envfile.old &>/dev/null
+	lrst=$?
+	if [ "x$lrst" == "x0" ]; then 
+	    sed s/\<INSTALLDIR\>/$new_dir/g $ENVDIR/$envfile.old 2>/dev/null 1>$ENVDIR/$envfile
+	    lrst=$?
+	    [ "x$gresult" == "x0" ] && gresult=$lrst
+	fi
+	[ "x$gresult" == "x0" ] || break
+    done
+    if [ "x$gresult" != "x0" ]; then
+	for old_envfile in $(ls $ENVDIR | grep old); do
+	    prev_one=$(echo "$old_envfile" | sed -e"s/\.old//g")
+	    if [ "x$prev_one" != "x" ]; then
+		rm -f $ENVDIR/$prev_one &>/dev/null
+		cp $ENVDIR/$old_envfile $ENVDIR/$prev_one &>/dev/null
+		rm -f $ENVDIR/$old_envfile &>/dev/null
+	    fi
+	done
+    else
+	rm -f $ENVDIR/*.old &>/dev/null
+    fi
+fi
+
+CMKL_SLINK=$(echo "$INSTALL_DIR" | sed -e"s/mkl/cmkl/g")
+if [ ! -e "$CMKL_SLINK" ]; then
+    top_dir=$(dirname "$CMKL_SLINK" 2>/dev/null)
+    mkdir -p "$top_dir"	&>/dev/null
+    slresult=$?
+    [ "x$slresult" == "x0" ] && ln -s "$INSTALL_DIR" "$CMKL_SLINK" 2>/dev/null
+fi

@@ -1,0 +1,14 @@
+
+if [ "$RPM_INSTALL_PREFIX" = "" ]; then
+    RPM_INSTALL_PREFIX=/opt/intel/mkl/10.0.3.020
+fi
+    
+INSTALL_DIR="$RPM_INSTALL_PREFIX"
+CMKL_SLINK=$(echo "$INSTALL_DIR" | sed -e"s/mkl/cmkl/g")
+if [ "$CMKL_SLINK" != "$INSTALL_DIR" ]; then
+    if [ -e "$CMKL_SLINK" ]; then
+	top_dir=$(dirname "$CMKL_SLINK" 2>/dev/null)
+	rm -f "$CMKL_SLINK" &>/dev/null
+	rmdir --ignore-fail-on-non-empty "$top_dir" &>/dev/null
+    fi
+fi
