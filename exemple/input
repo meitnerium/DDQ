@@ -1,0 +1,17 @@
+ &iofile
+ t0=-10695.d0,
+ title="test", 
+ pulsetype=2,
+ E0min=9.d13,
+ E0max=3.d14,
+ dE0=1.d13,
+ ntl=2.d0,
+ phase=0.5d0,
+ le0wattcm2=1,
+ dt=1.d0,
+ npos=2048,
+ TVIB=746.184809315100d0,
+ cas=2,
+ tsync=10695.d0
+ xmax=32.d0
+ &end
