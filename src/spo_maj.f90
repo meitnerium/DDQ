@@ -53,15 +53,15 @@ END SUBROUTINE simpson
 
       subroutine  calc_pulse(pulset,t,tc,te,E0,wir,pulsetype,nc,period)
           real(8) :: t,tc,E0,pulset,te,wir,period,beginpulse,endpulse
-          integer pulsetype,nc
-		  beginpulse=tc-(nc*period/2)
-		  endpulse=tc+(nc*period/2)
+          integer :: pulsetype,nc
+		  beginpulse=-(dfloat(nc)*period/2)
+		  endpulse=(dfloat(nc)*period/2)
     if (t.lt.beginpulse) then
             pulset=0.d0
     else if ((t.lt.endpulse).and.(pulsetype.eq.1)) then
             pulset=E0
     else if ((t.lt.endpulse).and.(pulsetype.eq.2)) then
-            pulset=E0*dsin((t-(beginpulse))*wir/(nc*2.d0))
+            pulset=E0*dsin((t-beginpulse)*wir/(dfloat(nc)*2.d0))**2.d0
     else 
             pulset=0.d0
     end if
@@ -73,7 +73,7 @@ END SUBROUTINE simpson
     
     subroutine calc_champ(champ,pulset,wir,t,beginpulse,phase)
         real(8) :: champ, pulset, wir, t, beginpulse, phase
-                champ=-dcos(wir*(t-beginpulse)+phase)*pulset
+                champ=dcos((wir*t)+phase)*pulset
         if (dabs(champ).lt.1.d-100) then
             champ=0.d0
         end if

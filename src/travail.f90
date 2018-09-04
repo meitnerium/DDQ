@@ -53,8 +53,9 @@ character(LEN=50) :: nomfichier
 character(LEN=50) :: charnum(10)
 character(LEN=50) :: test(10)
 character(LEN=2500) :: string
-integer :: nc
-nc=3
+integer :: nc,k
+!TODO : change number of optical cycle (nc) in the input
+nc=5
 delt=dt
 write(*,*) 'THIS IS A TEST 2! ', iE0
 !,t2,t3,clock_rate, clock_max
@@ -221,7 +222,7 @@ write(*,*) "int1tf", int1tf
       int1t0=0.d0  
       int2t0=0.d0  
       int3t0=0.d0  
-      timeper = 0.d0
+      timeper = t0
  do i=1,nt
     if (mod(i,100).eq.0) then
       write(*,*) i, "/" , nt , "t = ",t(i)
@@ -395,59 +396,6 @@ call cpu_time ( time2 )
   !enddo
   !close((iE0+1)*1000000+i)
 
-
-   pbname="unset multiplot"
-   write((iE0+1)*10000000,"(A120)") pbname
-   pbname="set size 1 , 1"
-   write((iE0+1)*10000000,"(A120)") pbname
-   pbname="set origin 0 , 0"
-   write((iE0+1)*10000000,"(A70)") pbname
-    write(charnum(1),'(f8.1)')t(i)
-    write(charnum(2),'(i7)') (iE0+1)*1000000+i
-    write(charnum(3),'(i7)') (iE0+1)*1000000+i
-    pbname="set output 'wp_"//charnum(3)(1:7)//".png'"
-   write((iE0+1)*10000000,"(A70)") pbname
-   pbname="set multiplot"
-   write((iE0+1)*10000000,*) "set title ''"
-   write((iE0+1)*10000000,"(A70)") pbname
-   write((iE0+1)*10000000,*) "set xtics 2"
-   write((iE0+1)*10000000,*) "set ytics 0.1"
-   
-   write(charnum(4),'(f8.1)') lieprob
-   pbname="plot [0:35] [0:2] 'fort."//charnum(2)(1:7)//"' w l title  'time = "//charnum(1)(1:10)//" u.a. pbound = " //charnum(4)(1:10)//"'"
-   write((iE0+1)*10000000,"(A120)") pbname
-   pbname="set size 0.3 , 0.3"
-   write((iE0+1)*10000000,"(A70)") pbname
-   pbname="set origin 0.6 , 0.6"
-   write((iE0+1)*10000000,"(A70)") pbname
-   ! adjust pboubd.100000 !!
-   if (i<=1000) then
-       j=i-1
-   else 
-       j=1000
-   end if
-   if ((nt-i)<1000) then
-       k=nt-i
-   else
-       k=1000
-   end if
-   write((iE0+1)*10000000,*) "set xtics ",t(i+k)-t(i-j)
-
-   if (champ(i) .eq. 0.d0) then
-    write((iE0+1)*10000000,*) "set ytics 0.5"
-   else
-    write((iE0+1)*10000000,*) "set ytics 0.1"
-   end if
-   write((iE0+1)*10000000,*) "set title 'Laser field'"
-
-   write(charnum(5),'(f8.1)') t(i-j)
-   write(charnum(6),'(f8.1)') t(i+k)
-   write(charnum(7),'(e9.2e2)') E0
-
-   pbname="plot ["//charnum(5)(1:9)//":"//charnum(6)(1:9)//"] [-"//charnum(7)(1:9)//":"//charnum(7)(1:9)//"] 'pbound.10000' u 1:3 w l title ''"
-   write((iE0+1)*10000000,"(A120)") pbname
-   pbname="unset multiplot"
-   write((iE0+1)*10000000,"(A70)") pbname
 
 
 

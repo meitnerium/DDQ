@@ -11,5 +11,5 @@ module load mpi/openmpi
 module load libs/mkl/11.1
 
 cd $PBS_O_WORKDIR
-
-mpirun -n 8 /home/fradion12/workspace/DDQ/bin/scanE
+export OMP_NUM_THREADS=8
+/home/fradion12/workspace/DDQ/bin/scanE
