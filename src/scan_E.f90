@@ -8,7 +8,7 @@ program scanE
     !include 'mpif.h'
     include 'mkl_dfti_examples.fi'
     integer :: rank, size, tag, ierror ! status(MPI_STATUS_SIZE),    ierror
-    integer :: nE0,pulsetype,iE0,id,le0wattcm2,logfile,nt,i,v,npos,n,cas
+    integer :: nE0,pulsetype,iE0,id,le0wattcm2,logfile,nt,i,v,npos,n,cas,nc
     character(LEN=50) :: title
     real(8), allocatable :: ep(:,:)
     real(8), allocatable :: pot(:,:)
@@ -27,7 +27,7 @@ program scanE
     !call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierror)
     !write(*,*) "ERROR AFTER MPI_COMM_RANK = ",ierror
     open(5,name="input",status="old")
-    namelist /iofile/ t0,title, pulsetype,E0min,E0max,dE0,ntl,phase,le0wattcm2,dt,npos,TVIB,cas,tsync,xmax
+    namelist /iofile/ t0,title, pulsetype,E0min,E0max,dE0,ntl,phase,le0wattcm2,dt,npos,TVIB,cas,tsync,xmax,nc
     read(5,iofile)
 
 
@@ -145,7 +145,7 @@ write(*,*)delr
         E0=wattcm22au(E0)
 	    write(*,*) "iE0+(rank) " , iE0+(rank), "E0", E0
 	    write(6554346,*) "iE0+(rank) " , iE0+(rank), "E0", E0
-        call travail(t0,E0,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0+rank,logfile,t,nt,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1,chi2,massreduite,pbfin(iE0+rank),TVIB)
+        call travail(t0,E0,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0+rank,logfile,t,nt,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1,chi2,massreduite,pbfin(iE0+rank),TVIB,nc)
         write(999654,*)iE0,E0,pbfin(iE0)
          iE0=iE0+size
     end do 

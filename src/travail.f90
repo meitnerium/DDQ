@@ -1,4 +1,4 @@
-subroutine travail(t0,E0in,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0,logfile,t,ntps,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1in,chi2in,massreduite,pbfin,TVIB)
+subroutine travail(t0,E0in,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0,logfile,t,ntps,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1in,chi2in,massreduite,pbfin,TVIB,nc)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Calcul de propagations de paquets d'ondes par méthode de Split-Opérateur
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -12,7 +12,7 @@ use simps0n
 include 'mkl_dfti_examples.fi'
 
 !implicit none
-integer , INTENT(IN) :: npos,pulsetype,logfile,le0wattcm2,iE0,ntps,nt,v,id
+integer , INTENT(IN) :: npos,pulsetype,logfile,le0wattcm2,iE0,ntps,nt,v,id,nc
 character(LEN=50) , INTENT(IN) :: title
 real(8) , INTENT(IN) ::  wir,phase,tc,te,tf,x(npos),ep(v,npos),xmu12(npos),delr,massreduite,dt,t0
 real(8), INTENT(IN) :: E0in,TVIB
@@ -53,9 +53,8 @@ character(LEN=50) :: nomfichier
 character(LEN=50) :: charnum(10)
 character(LEN=50) :: test(10)
 character(LEN=2500) :: string
-integer :: nc,k
+integer :: k
 !TODO : change number of optical cycle (nc) in the input
-nc=5
 delt=dt
 write(*,*) 'THIS IS A TEST 2! ', iE0
 !,t2,t3,clock_rate, clock_max

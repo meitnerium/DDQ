@@ -5,7 +5,7 @@ program scanE
     use mpi
     include 'mkl_dfti_examples.fi'
     integer :: rank, size, tag, ierror , status(MPI_STATUS_SIZE)
-    integer :: nE0,pulsetype,iE0,id,le0wattcm2,logfile,nt,i,v,npos,n,cas
+    integer :: nE0,pulsetype,iE0,id,le0wattcm2,logfile,nt,i,v,npos,n,cas,nc
     character(LEN=50) :: title
     real(8), allocatable :: ep(:,:)
     real(8), allocatable :: pot(:,:)
@@ -25,7 +25,7 @@ program scanE
     call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierror)
     write(*,*) "ERROR AFTER MPI_COMM_RANK = ",ierror
     open(5,name="input",status="old")
-    namelist /iofile/ t0,title, pulsetype,E0min,E0max,dE0,ntl,phase,le0wattcm2,dt,npos,TVIB,cas,tsync,xmax
+    namelist /iofile/ t0,title, pulsetype,E0min,E0max,dE0,ntl,phase,le0wattcm2,dt,npos,TVIB,cas,tsync,xmax,nc
     read(5,iofile)
 
 
@@ -110,7 +110,6 @@ write(*,*)delr
 	enddo
 
  do n=1,v
-
 	do i=1,npos
  	  ep(n,i)=morse(diss,0.72d0,massreduite,requ,x(i),n-1) !construction des n etats vibrationnels sur la grille
 	  work1(i)=(dabs(ep(n,i)))**2
@@ -132,25 +131,24 @@ write(*,*)delr
     nE0=(E0max-E0min)/dE0+1
     allocate(pbfin(0:nE0))
     iE0=0
-    !rank=0
-    size=1
+
     open(6554346,name='E0value.dat',status="replace")
-!!$OMP PARALLELDO PRIVATE(E0)
+
     do while ((iE0+(rank)).le.nE0)  
         !id = omp_get_thread_num ( )
-        write(*,*) "id = ",id
+        write(*,*) "rank = ",rank
         E0=E0min+(iE0+rank)*dE0
         E0=wattcm22au(E0)
-	    write(*,*) "iE0+(rank) " , iE0+(rank), "E0", E0
-	    write(6554346,*) "iE0+(rank) " , iE0+(rank), "E0", E0
-        call travail(t0,E0,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0+rank,logfile,t,nt,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1,chi2,massreduite,pbfin(iE0+rank),TVIB)
+        write(*,*) "iE0+(rank) " , iE0+(rank), "E0", E0
+	write(6554346,*) "iE0+(rank) " , iE0+(rank), "E0", E0
+        call travail(t0,E0,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0+rank,logfile,t,nt,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1,chi2,massreduite,pbfin(iE0+rank),TVIB,nc)
         write(999654,*)iE0,E0,pbfin(iE0+(rank))
          iE0=iE0+size
     end do 
-!!$OMP END PARALLELDO
+
     write(*,*) "test fin de programme"
     close(6554346)
     close(logfile)
-   !call MPI_FINALIZE(ierror)
-
+    call MPI_FINALIZE(ierror)
+    write(*,*) "ERROR AFTER MPI_FINALIZE = ",ierror
 end program scanE
