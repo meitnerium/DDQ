@@ -1,4 +1,4 @@
-subroutine travail(t0,E0in,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0,logfile,t,ntps,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1in,chi2in,massreduite,pbfin,TVIB,nc)
+subroutine travail(t0,E0in,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0,logfile,t,ntps,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1in,chi2in,massreduite,pbfin,TVIB,nc,beta)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Calcul de propagations de paquets d'ondes par méthode de Split-Opérateur
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -46,7 +46,7 @@ real(8) :: dissprob
 real(8) :: dispers(nt)
 real(8) :: pulset(nt),champir1(nt),periodir,dw
 real(8),dimension(npos-ideb) :: vp1reel,vp2reel
-real(8) :: time1,time2,time3,btime,ftime
+real(8) :: time1,time2,time3,btime,ftime,beta
 real(8) xnorm1, xnorm2, xnormk1, xnormk2
 character(LEN=120) :: pbname
 character(LEN=50) :: nomfichier
@@ -201,17 +201,12 @@ dtper=dt/1024.d0
       timeper = t0
       do while(timeper.lt.tf)
          timeper = timeper + dtper
-         call calc_pulse(pulsetemp,timeper,tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-         call calc_champ(champ2,pulsetemp,wir,timeper,tc-(nc*wir/(4.d0*MATH_PI)),phase)
-         call calc_pulse(pulsetemp,timeper-dtper,tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-         call calc_champ(champ1,pulsetemp,wir,timeper-dtper,tc-(nc*wir/(4.d0*MATH_PI)),phase)
-
+         call calc_champ(champ2,wir,timeper,phase,nc,MATH_PI,E0,beta)
+         call calc_champ(champ1,wir,timeper-dtper,phase,nc,MATH_PI,E0,beta)
          call airesint (int1tf, int2tf, int3tf, dtper, champ1, champ2)
       end do
-      call calc_pulse(pulsetemp,timeper,tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-      call calc_champ(champ1,pulsetemp,wir,timeper,tc-(nc*wir/(4.d0*MATH_PI)),phase)
-      call calc_pulse(pulsetemp,tf,tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-      call calc_champ(champ2,pulsetemp,wir,tf,tc-(nc*wir/(4.d0*MATH_PI)),phase)
+      call calc_champ(champ1,wir,timeper,phase,nc,MATH_PI,E0,beta)
+      call calc_champ(champ2,wir,tf,phase,nc,MATH_PI,E0,beta)
       call airesint(int1tf, int2tf, int3tf, tf-timeper, champ1, champ2)
 !********************************************************************
 !	Application du split operator-Ouverture de la boucle temps 
@@ -228,17 +223,12 @@ write(*,*) "int1tf", int1tf
     end if
       do while(timeper.lt.t(i))
          timeper = timeper + dtper
-         call calc_pulse(pulsetemp,timeper,tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-         call calc_champ(champ2,pulsetemp,wir,timeper,tc-(nc*wir/(4.d0*MATH_PI)),phase)
-         call calc_pulse(pulsetemp,timeper-dtper,tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-         call calc_champ(champ1,pulsetemp,wir,timeper-dtper,tc-(nc*wir/(4.d0*MATH_PI)),phase)
-
+         call calc_champ(champ2,wir,timeper,phase,nc,MATH_PI,E0,beta)
+         call calc_champ(champ1,wir,timeper-dtper,phase,nc,MATH_PI,E0,beta)
          call airesint (int1t0, int2t0, int3t0, dtper, champ1, champ2)
       end do
-      call calc_pulse(pulsetemp,timeper,tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-      call calc_champ(champ1,pulsetemp,wir,timeper,tc-(nc*wir/(4.d0*MATH_PI)),phase)
-      call calc_pulse(pulsetemp,tf,tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-      call calc_champ(champ2,pulsetemp,wir,t(i),tc-(nc*wir/(4.d0*MATH_PI)),phase)
+      call calc_champ(champ1,wir,timeper,phase,nc,MATH_PI,E0,beta)
+      call calc_champ(champ2,wir,t(i),phase,nc,MATH_PI,E0,beta)
       call airesint(int1tf, int2tf, int3tf, t(i)-timeper, champ1, champ2)
 !********************************************************************
 !	Calcul des aires temporelles du champ 
@@ -257,9 +247,7 @@ write(*,*) "int1tf", int1tf
 
 !       end do
 !    end if
-    call calc_pulse(pulset(i),t(i),tc,te,E0,wir,pulsetype,nc,2.d0*MATH_PI/wir)
-
-    call calc_champ(champ(i),pulset(i),wir,t(i),tc-(nc*wir/(4.d0*MATH_PI)),phase)
+    call calc_champ(champ(i),wir,t(i),phase,nc,MATH_PI,E0,beta)
 
 	do j=1,npos
 		worka(j)=x(j)*(cdabs(chi1(j)))**2 !position moyenne du paquet d'onde de l'état fondamental
@@ -379,7 +367,7 @@ call cpu_time ( time2 )
 !			write(49,*)n,lieprobv
 !		endif
             end do
-            write(10000+iE0,'( 4E18.6E3,2X )') t(i), lieprob,champ(i),pulset(i)
+            write(10000+iE0,'( 4E18.6E3,2X )') t(i), lieprob,champ(i)
 !write(logfile,*) "Pbount du iE0 : ", iE0 , " : fort." , 10000+iE0
 !            write(*,*) t(i), lieprob,champ(i)
 

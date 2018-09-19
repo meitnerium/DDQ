@@ -12,7 +12,7 @@ program scanE
     real(8) :: phase,wir,requ,diss,massreduite,TVIB,tsync
     real(8) :: tc,dw,te,tf,t0,period,dt,delr!,MATH_PI
     real(8) :: E0min,E0max,dE0,E0,norme,alpha,rc0,p0
-    real(8) :: xmin,xmax,ntl,NP,NPE
+    real(8) :: xmin,xmax,ntl,NP,NPE,beta
     real(8), allocatable :: t(:),x(:),work1(:),xmu12(:)
     real(8), allocatable :: pbfin(:)
     complex(8), allocatable :: chi1(:), chi2(:)
@@ -25,7 +25,7 @@ program scanE
     call MPI_COMM_RANK(MPI_COMM_WORLD, rank, ierror)
     write(*,*) "ERROR AFTER MPI_COMM_RANK = ",ierror
     open(5,name="input",status="old")
-    namelist /iofile/ t0,title, pulsetype,E0min,E0max,dE0,ntl,phase,le0wattcm2,dt,npos,TVIB,cas,tsync,xmax,nc
+    namelist /iofile/ t0,title, pulsetype,E0min,E0max,dE0,ntl,phase,le0wattcm2,dt,npos,TVIB,cas,tsync,xmax,nc,beta
     read(5,iofile)
 
 
@@ -70,14 +70,6 @@ write(logfile,*) "Title : " , title
 period=2*MATH_PI/wir
 phase=phase*MATH_PI
 !t0=0.d0
-if (cas.eq.1) then 
-    tc=tsync-period/2.d0
-else if (cas.eq.2) then
-    tc=tsync-period/4.d0
-else
-    write(*,*) "cas must be 1 (trapping) or 2(dissociative)"
-    stop 10
-end if
 !write(*,*) "tc = " , tc , " en fs : " , tc*tau2fs 
 !write(*,*) "period = " , period , " en fs : " , period*tau2fs 
 !write(*,*) "tvib = " , TVIB , " en fs : " , TVIB*tau2fs 
@@ -141,7 +133,7 @@ write(*,*)delr
         E0=wattcm22au(E0)
         write(*,*) "iE0+(rank) " , iE0+(rank), "E0", E0
 	write(6554346,*) "iE0+(rank) " , iE0+(rank), "E0", E0
-        call travail(t0,E0,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0+rank,logfile,t,nt,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1,chi2,massreduite,pbfin(iE0+rank),TVIB,nc)
+        call travail(t0,E0,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0+rank,logfile,t,nt,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1,chi2,massreduite,pbfin(iE0+rank),TVIB,nc,beta)
         write(999654,*)iE0,E0,pbfin(iE0+(rank))
          iE0=iE0+size
     end do 

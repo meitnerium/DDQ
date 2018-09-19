@@ -51,31 +51,20 @@ END SUBROUTINE simpson
       return
       end subroutine airesint
 
-      subroutine  calc_pulse(pulset,t,tc,te,E0,wir,pulsetype,nc,period)
-          real(8) :: t,tc,E0,pulset,te,wir,period,beginpulse,endpulse
-          integer :: pulsetype,nc
-		  beginpulse=-(dfloat(nc)*period/2)
-		  endpulse=(dfloat(nc)*period/2)
-    if (t.lt.beginpulse) then
-            pulset=0.d0
-    else if ((t.lt.endpulse).and.(pulsetype.eq.1)) then
-            pulset=E0
-    else if ((t.lt.endpulse).and.(pulsetype.eq.2)) then
-            pulset=E0*dsin((t-beginpulse)*wir/(dfloat(nc)*2.d0))**2.d0
-    else 
-            pulset=0.d0
-    end if
-    if (dabs(pulset).lt.1.d-100) then
-            pulset=0.d0
-        end if
-
-    end subroutine calc_pulse
-    
-    subroutine calc_champ(champ,pulset,wir,t,beginpulse,phase)
-        real(8) :: champ, pulset, wir, t, beginpulse, phase
-                champ=dcos((wir*t)+phase)*pulset
-        if (dabs(champ).lt.1.d-100) then
-            champ=0.d0
+    subroutine calc_champ(champ,wir,t,phase,nc,pi,E0,beta)
+        real(8) :: champ, wir, t, beginpulse, phase,pi,e,g,dere,derg,E0,beta
+        integer :: nc
+        write(*,*) nc
+        if (dabs(t).le.(dfloat(nc)*pi/wir)) then
+                e=dsin(wir*t+beta*t**2+phase)
+                !dere=wir*dcos(wir*t+phase*pi)
+                dere=dcos(wir*t+beta*t**2+phase)
+                g=dcos(wir*t/(2*nc))**2
+                !derg=-wir/nc*dsin(wir*t/(2*nc))*dcos(wir*t/(2*nc))
+                derg=dsin(wir*t/(2*nc))*dcos(wir*t/(2*nc))
+                champ=E0*(e*derg+g*dere)
+        else
+                champ=0.d0
         end if
     end subroutine calc_champ
 
