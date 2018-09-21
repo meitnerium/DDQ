@@ -1,0 +1,1 @@
+ifort write_init.f90 -o write_init potspec_maj.o spo_maj.o cmplxmath.o morse.o travail.o asymp.o
