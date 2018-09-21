@@ -1,4 +1,4 @@
-subroutine travail(t0,E0in,title,pulsetype,wir,phase,le0wattcm2,tc,te,tf,iE0,logfile,t,ntps,ep,npos,v,x,id,dt,nt,xmu12,pot,delr,chi1in,chi2in,massreduite,pbfin,TVIB,nc,beta)
+subroutine travail(iE0)
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Calcul de propagations de paquets d'ondes par méthode de Split-Opérateur
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -12,48 +12,80 @@ use simps0n
 include 'mkl_dfti_examples.fi'
 
 !implicit none
-integer , INTENT(IN) :: npos,pulsetype,logfile,le0wattcm2,iE0,ntps,nt,v,id,nc
-character(LEN=50) , INTENT(IN) :: title
-real(8) , INTENT(IN) ::  wir,phase,tc,te,tf,x(npos),ep(v,npos),xmu12(npos),delr,massreduite,dt,t0
-real(8), INTENT(IN) :: E0in,TVIB
-complex(8), INTENT(IN) :: chi1in(npos), chi2in(npos)
-real(8), INTENT(OUT) :: pbfin
-real(8), INTENT(IN) :: pot(2,npos)
+integer , INTENT(IN) :: iE0
+integer :: npos,pulsetype,logfile,le0wattcm2,ntps,nt,v,id,nc
+character(LEN=50) :: title
+real(8) ::  wir,phase,tc,te,tf,delr,massreduite,dt,t0
+!real(8) ::  x(npos),ep(v,npos),xmu12(npos)
+real(8),allocatable ::  x(:),ep(:,:),xmu12(:)
+real(8) :: E0,TVIB,w
+!complex(8) :: chi1in(npos), chi2in(npos)
+complex(8),allocatable :: chi1in(:), chi2in(:)
+real(8) :: pbfin
+!real(8) :: pot(2,npos)
+real(8),allocatable :: pot(:,:)
 
 real(8) :: r0cut, scut
 !npos pour la grille de position et d'impulsion, ntps pour la grille de temps
-real(8) :: w1(4*npos), w2(4*npos) 
+!real(8) :: w1(4*npos), w2(4*npos) 
+real(8),allocatable :: w1(:), w2(:) 
 character(LEN=50) :: fichier1,fichier2,fichier3,fichier4,fichier5
-real(8) :: wspos(4*npos+15),wsbig(16*npos+15)
+!real(8) :: wspos(4*npos+15),wsbig(16*npos+15)
+real(8),allocatable :: wspos(:),wsbig(:)
 real(8) :: timeper,dtper,pulsetemp,champ1,champ2
-complex(8) :: zwork1(4*npos), zwork2(4*npos), zwork3(4*npos), zwork4(4*npos)
+!complex(8) :: zwork1(4*npos), zwork2(4*npos), zwork3(4*npos), zwork4(4*npos)
+complex(8),allocatable :: zwork1(:), zwork2(:), zwork3(:), zwork4(:)
 real(8) :: int1tf, int2tf, int3tf
 real(8) ::  int1t0, int2t0, int3t0
-integer :: n,i,j,l,m,maxpot1,minpot2,ideb,ninput,nE0,npbfin
+integer :: n,i,j,l,m,maxpot1,minpot2,ideb,ninput,npbfin
 parameter (ideb=85)
-complex(8) :: zcutA(4*npos),zcutI(4*npos)
+!complex(8) :: zcutA(4*npos),zcutI(4*npos)
+complex(8),allocatable :: zcutA(:),zcutI(:)
 real(8) :: evbyau,spk
-real(8) :: work2(4*npos),work3(4*npos),work4(4*npos), work5(4*npos)
+!real(8) :: work2(4*npos),work3(4*npos),work4(4*npos), work5(4*npos)
+real(8),allocatable :: work2(:),work3(:),work4(:), work5(:)
 real(8) :: xmin, xmax, requ, diss, lieprobv,E0wattcm2,dk,cte,xk
-real(8) :: work1(npos),table1(npos),normedeb, champ(nt),E0,rc0
-real(8) :: tablea(npos),worka(npos),workb(npos),projreal, projimag, lieprob 
-complex(8) :: chi1(npos),chi2(npos),cun,cim,cnul,zetdt(npos),ctemp(npos),chilie(npos),chi1init(npos)
-complex(8) :: psik1(npos*4), psik2(npos*4)
+real(8) :: normedeb, rc0
+!real(8) :: work1(npos),table1(npos), champ(nt)
+real(8),allocatable :: work1(:),table1(:), champ(:)
+real(8) :: projreal, projimag, lieprob 
+!real(8),allocatable :: tablea(npos),worka(npos),workb(npos)
+real(8),allocatable :: tablea(:),worka(:),workb(:)
+complex(8) :: cun,cim,cnul
+!complex(8) :: chi1(npos),chi2(npos),zetdt(npos),ctemp(npos),chilie(npos),chi1init(npos)
+complex(8),allocatable :: chi1(:),chi2(:),zetdt(:),ctemp(:),chilie(:),chi1init(:)
+!complex(8) :: psik1(npos*4), psik2(npos*4)
+complex(8),allocatable :: psik1(:), psik2(:)
 
-real(8) :: alpha,p0,rdeb,proj(npos) ,proji(npos),xmue,auto_correl(nt) 
-real(8) :: t(nt),delt,pi,omega,  norme,norme1,norme2,periode,delta,vp1(npos),vp2(npos),sigma,tmax,kmoyen(nt),rmoyen(nt),rmoyenlie(nt),rclapet1(nt),rclapet2(nt),f0
+real(8) :: alpha,p0,rdeb,xmue
+!real(8) :: proj(npos) ,proji(npos),auto_correl(nt) 
+real(8),allocatable :: proj(:) ,proji(:),auto_correl(:) 
+real(8) :: delt,pi,omega,  norme,norme1,norme2,periode,delta,sigma,tmax,f0
+!real(8) :: t(nt),vp1(npos),vp2(npos),kmoyen(nt),rmoyen(nt),rmoyenlie(nt),rclapet1(nt),rclapet2(nt)
+real(8),allocatable :: t(:),vp1(:),vp2(:),kmoyen(:),rmoyen(:),rmoyenlie(:),rclapet1(:),rclapet2(:)
 real(8) :: dissprob
-real(8) :: dispers(nt)
-real(8) :: pulset(nt),champir1(nt),periodir,dw
-real(8),dimension(npos-ideb) :: vp1reel,vp2reel
+!real(8) :: dispers(nt)
+real(8),allocatable :: dispers(:)
+real(8) :: periodir,dw
+!real(8) :: pulset(nt),champir1(nt)
+real(8),allocatable :: pulset(:),champir1(:)
+!real(8),dimension(npos-ideb) :: vp1reel,vp2reel
+real(8),allocatable :: vp1reel(:),vp2reel(:)
 real(8) :: time1,time2,time3,btime,ftime,beta
 real(8) xnorm1, xnorm2, xnormk1, xnormk2
 character(LEN=120) :: pbname
 character(LEN=50) :: nomfichier
 character(LEN=50) :: charnum(10)
-character(LEN=50) :: test(10)
+character(LEN=5) :: test
 character(LEN=2500) :: string
 integer :: k
+CHARACTER(LEN=20) FMT
+
+WRITE(test,'(I5.5)') iE0
+open(5,name="case_"//ADJUSTL(test)//"/input",status="old")
+namelist /iofile/ t0, pulsetype,E0,phase,w,dt,nc
+read(5,iofile)
+
 !TODO : change number of optical cycle (nc) in the input
 delt=dt
 write(*,*) 'THIS IS A TEST 2! ', iE0
@@ -72,7 +104,40 @@ write(logfile,*) "Begining of the program ", btime
  cnul = dcmplx(0.d0,0.d0)
  pi = MATH_PI
 !t0=0d0
-E0=E0in
+
+ dissprob=0.d0
+  r0cut = 34.026d0
+  scut = 4.72d-1
+    evbyau = 27.212d0
+
+
+open((iE0+1)*10000000)
+pbname = "set terminal png"
+write((iE0+1)*10000000,"(A70)") pbname
+ ! 70000+iE0 rmoyen
+    ! 30000+iE0 dispersion
+write(charnum(1),'(I5)')10000+iE0
+write(*,*)"Charnum(1) = ", charnum(1)
+open(10000+iE0,name='pbound.'//charnum(1))
+
+write(charnum(1),'(I5)')10000+iE0
+write(*,*)"Charnum(1) = ", charnum(1)
+write((iE0+1)*10000000,"(A70)") pbname
+ ! 70000+iE0 rmoyen
+    ! 30000+iE0 dispersion
+write(charnum(1),'(I5)')10000+iE0
+write(*,*)"Charnum(1) = ", charnum(1)
+open(10000+iE0,name='pbound.'//charnum(1))
+
+write(charnum(1),'(I5)')10000+iE0
+write(*,*)"Charnum(1) = ", charnum(1)
+!call readinputsub(tc,dw,tf)
+
+ cun = dcmplx(1.0d0,0.d0)
+ cim = dcmplx(0.d0,1.0d0)
+ cnul = dcmplx(0.d0,0.d0)
+ pi = MATH_PI
+!t0=0d0
 
  dissprob=0.d0
   r0cut = 34.026d0
@@ -98,6 +163,56 @@ write(*,*)"Charnum(1) = ", charnum(1)
 open(70000+iE0,name='rmoyen.'//charnum(1))
 
 
+open(10,file='init.dat')
+read(10,*)npos
+!real(8) ::  x(npos),ep(v,npos),xmu12(npos)
+allocate(x(npos),xmu12(npos))
+!complex(8) :: chi1in(npos), chi2in(npos)
+allocate(chi1in(npos), chi2in(npos))
+!real(8) :: pot(2,npos))
+allocate(pot(2,npos))
+!real(8) :: w1(4*npos), w2(4*npos) 
+allocate(w1(4*npos), w2(4*npos)) 
+!real(8) :: wspos(4*npos+15),wsbig(16*npos+15)
+allocate(wspos(4*npos+15),wsbig(16*npos+15))
+!complex(8) :: zwork1(4*npos), zwork2(4*npos), zwork3(4*npos), zwork4(4*npos)
+allocate(zwork1(4*npos), zwork2(4*npos), zwork3(4*npos), zwork4(4*npos))
+!complex(8) :: zcutA(4*npos),zcutI(4*npos)
+allocate(zcutA(4*npos),zcutI(4*npos))
+!real(8) :: work2(4*npos),work3(4*npos),work4(4*npos), work5(4*npos)
+allocate(work2(4*npos),work3(4*npos),work4(4*npos), work5(4*npos))
+!real(8) :: work1(npos),table1(npos), champ(nt)
+allocate(work1(npos),table1(npos), champ(nt))
+!real(8),allocatable :: tablea(npos),worka(npos),workb(npos)
+allocate(tablea(npos),worka(npos),workb(npos))
+!complex(8) :: chi1(npos),chi2(npos),zetdt(npos),ctemp(npos),chilie(npos),chi1init(npos)
+allocate(chi1(npos),chi2(npos),zetdt(npos),ctemp(npos),chilie(npos),chi1init(npos))
+!complex(8) :: psik1(npos*4), psik2(npos*4)
+allocate(psik1(npos*4), psik2(npos*4))
+!real(8) :: rdeb,proj(npos) ,proji(npos),auto_correl(nt) 
+allocate(proj(npos) ,proji(npos),auto_correl(nt))
+!real(8) :: t(nt),vp1(npos),vp2(npos),kmoyen(nt),rmoyen(nt),rmoyenlie(nt),rclapet1(nt),rclapet2(nt)
+allocate(t(nt),vp1(npos),vp2(npos),kmoyen(nt),rmoyen(nt),rmoyenlie(nt),rclapet1(nt),rclapet2(nt))
+!real(8) :: dispers(nt)
+allocate(dispers(nt))
+!real(8) :: pulset(nt),champir1(nt)
+allocate(pulset(nt),champir1(nt))
+!real(8),dimension(npos-ideb) :: vp1reel,vp2reel
+allocate(vp1reel(npos-ideb),vp2reel(npos-ideb))
+    !allocate(work1(npos))
+    !allocate(chi1(npos),tmprchi1(npos),tmpichi1(npos))
+    !allocate(chi2(npos),tmprchi2(npos),tmpichi2(npos))
+    !allocate(pot(2,npos))
+    !allocate(xmu12(npos))
+    !allocate(x(npos))
+read(10,*)v
+    allocate(ep(v,npos))
+WRITE(FMT,*) v+6
+do i=1,npos
+  read(10,"(" // ADJUSTL(FMT) // "E18.6E3)") x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),chi1(i),chi2(i)
+  write(*,*) x(i),pot(1,i),pot(2,i)
+!write(10,101)x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),real(chi1(i)),aimag(chi1(i)),real(chi2(i)),aimag(chi2(i))
+enddo
 
 
 
@@ -178,6 +293,7 @@ write(*,*) "LE TEST EST  FONCTIONNEL"
 !pseudocarre(champ,t,ntps,delt,ph)
 write(*,*) "Temps final : ", tf
     E0wattcm2=au2wattcm2(E0)
+    logfile=876325
     write(logfile, *) " iE0 = ",  iE0  
     write(logfile,'(" E0 = ", E16.8 , " u.a. , ",  E16.8 , "  W/cm2" )') E0 , E0wattcm2 
     write(logfile,*) "phase = ", phase/MATH_PI , " Pi"
@@ -556,6 +672,7 @@ write(logfile,'(A120)') "Time of calculation  ", string
 1006  format(6(e16.8e3,2x))
 1007  format(7(e16.8e3,2x))
 end subroutine travail
+
 !filename='obs_'//job
 !open(60,file=filename,status='unknown',form='formatted')
 !write (chain(6:8),'(i3.3)') int
@@ -611,5 +728,4 @@ end subroutine travail
 !***************************************************************
 ! 		Integration Simpson
 !***************************************************************
-
 
