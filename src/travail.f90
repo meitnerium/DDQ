@@ -79,7 +79,7 @@ character(LEN=50) :: charnum(10)
 character(LEN=5) :: test
 character(LEN=2500) :: string
 integer :: k
-CHARACTER(LEN=20) FMT
+CHARACTER(2) FMT
 
 WRITE(test,'(I5.5)') iE0
 open(5,name="case_"//ADJUSTL(test)//"/input",status="old")
@@ -88,7 +88,13 @@ read(5,iofile)
 
 !TODO : change number of optical cycle (nc) in the input
 delt=dt
+tf=6.d0*(2.d0*MATH_PI/w)
+nt=int((tf-t0)/dt)
+allocate(t(nt))
 write(*,*) 'THIS IS A TEST 2! ', iE0
+do i=1,nt
+  t(i)=t0+(i-i)*dt
+end do 
 !,t2,t3,clock_rate, clock_max
 !***********************************************************************
 !         Valeurs des paramètres, allocation des variables
@@ -96,6 +102,7 @@ write(*,*) 'THIS IS A TEST 2! ', iE0
 ! call system_clock ( t1, clock_rate, clock_max )
 call cpu_time ( btime )
 !write(*,*) "* Begining of the program ", btime
+    logfile=876325
 write(logfile,*) "Begining of the program ", btime
 !call readinputsub(tc,dw,tf)
 
@@ -192,7 +199,7 @@ allocate(psik1(npos*4), psik2(npos*4))
 !real(8) :: rdeb,proj(npos) ,proji(npos),auto_correl(nt) 
 allocate(proj(npos) ,proji(npos),auto_correl(nt))
 !real(8) :: t(nt),vp1(npos),vp2(npos),kmoyen(nt),rmoyen(nt),rmoyenlie(nt),rclapet1(nt),rclapet2(nt)
-allocate(t(nt),vp1(npos),vp2(npos),kmoyen(nt),rmoyen(nt),rmoyenlie(nt),rclapet1(nt),rclapet2(nt))
+allocate(vp1(npos),vp2(npos),kmoyen(nt),rmoyen(nt),rmoyenlie(nt),rclapet1(nt),rclapet2(nt))
 !real(8) :: dispers(nt)
 allocate(dispers(nt))
 !real(8) :: pulset(nt),champir1(nt)
@@ -206,10 +213,11 @@ allocate(vp1reel(npos-ideb),vp2reel(npos-ideb))
     !allocate(xmu12(npos))
     !allocate(x(npos))
 read(10,*)v
-    allocate(ep(v,npos))
-WRITE(FMT,*) v+6
+allocate(ep(v,npos))
+WRITE(*,*) v+6
+WRITE(FMT,'(I2)') v+6
 do i=1,npos
-  read(10,"(" // ADJUSTL(FMT) // "E18.6E3)") x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),chi1(i),chi2(i)
+  read(10,"(" // ADJUSTL(FMT) // "E18.6E3)") x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),chi1in(i),chi2in(i)
   write(*,*) x(i),pot(1,i),pot(2,i)
 !write(10,101)x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),real(chi1(i)),aimag(chi1(i)),real(chi2(i)),aimag(chi2(i))
 enddo
@@ -254,6 +262,7 @@ write(*,*) 'THIS IS A TEST 11111111111111 !!!!!!!!!!!!! ', iE0
 ! enddo
  do j=1,npos
 	chi1init(j)=chi1in(j)
+        write(3736342,*) x(j),chi1init(j)
  enddo
 
 
@@ -292,17 +301,17 @@ write(*,*) "LE TEST EST  FONCTIONNEL"
 !call pulsechoice(pulsetype,champ,t,ntps,delt,logfile,E0,wir,phase,le0wattcm2,tc,te,tf)
 !pseudocarre(champ,t,ntps,delt,ph)
 write(*,*) "Temps final : ", tf
+    E0=wattcm22au(E0)
     E0wattcm2=au2wattcm2(E0)
-    logfile=876325
-    write(logfile, *) " iE0 = ",  iE0  
-    write(logfile,'(" E0 = ", E16.8 , " u.a. , ",  E16.8 , "  W/cm2" )') E0 , E0wattcm2 
-    write(logfile,*) "phase = ", phase/MATH_PI , " Pi"
-    write(logfile,'(" tc = ", E16.8 , " a.u. ," , E16.8, " fs" )') tc , tc*tau2fs 
-    write(logfile,'(" te = " , E16.8 , " a.u. ," , E16.8, " fs" )') te , te*tau2fs 
-    write(logfile,*) "tf = ", tf, "a.u." , tf*tau2fs ," fs"
-    write(logfile,*) "nt = ", nt
-    write(logfile,*) "dt = ", dt, "a.u." , dt*tau2fs ," fs"
-    write(logfile,*) "wir in travail = " , wir , " TL = " ,  2.d0*MATH_PI/(wir*TVIB) ," TVIB" 
+    !write(logfile, *) " iE0 = ",  iE0  
+    !write(logfile,'(" E0 = ", E16.8 , " u.a. , ",  E16.8 , "  W/cm2" )') E0 , E0wattcm2 
+    !write(logfile,*) "phase = ", phase/MATH_PI , " Pi"
+    !write(logfile,'(" tc = ", E16.8 , " a.u. ," , E16.8, " fs" )') tc , tc*tau2fs 
+    !write(logfile,'(" te = " , E16.8 , " a.u. ," , E16.8, " fs" )') te , te*tau2fs 
+    !write(logfile,*) "tf = ", tf, "a.u." , tf*tau2fs ," fs"
+    !write(logfile,*) "nt = ", nt
+    !write(logfile,*) "dt = ", dt, "a.u." , dt*tau2fs ," fs"
+    !write(logfile,*) "wir in travail = " , wir , " TL = " ,  2.d0*MATH_PI/(wir*TVIB) ," TVIB" 
 
       pbfin=0.d0
       npbfin=0
@@ -469,14 +478,17 @@ call cpu_time ( time2 )
 !********************************************************************
 	 lieprob = 0.d0
  !   pause 10 
+     write(123453245,*) "t = ",t(i)
      do n = 1, v
 	       do j = 1, npos
                   proj(j) = ep(n,j)*dreal(chi1(j))
                   proji(j) = ep(n,j)*dimag(chi1(j))
+                  write(123453245,'(4E23.8,2x,I3)') x(j),ep(n,j),dreal(chi1(j)),dimag(chi1(j)),n
+
                   
 	       end do
        call simpson(npos,delr,proj,projreal)
-	   call simpson(npos,delr,proji,projimag)
+       call simpson(npos,delr,proji,projimag)
 	   lieprobv=(projreal**2 + projimag**2)
 	        lieprob = lieprob + lieprobv
 !		if (i.eq.1) then		
@@ -606,8 +618,8 @@ call cpu_time ( time2 )
 
 !enddo
 !call fourier(kmoyen,ntps,1,delt,delt)
-    write(*,*) iE0
-   write(*,*) "E0 : ", E0, "id : ", id
+    !write(*,*) iE0
+   !write(*,*) "E0 : ", E0, "id : ", id
 
 
 

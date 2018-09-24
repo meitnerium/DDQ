@@ -54,7 +54,7 @@ END SUBROUTINE simpson
     subroutine calc_champ(champ,wir,t,phase,nc,pi,E0,beta)
         real(8) :: champ, wir, t, beginpulse, phase,pi,e,g,dere,derg,E0,beta
         integer :: nc
-        write(*,*) nc
+        !write(*,*) nc
         if (dabs(t).le.(dfloat(nc)*pi/wir)) then
                 e=dsin(wir*t+beta*t**2+phase)
                 !dere=wir*dcos(wir*t+phase*pi)

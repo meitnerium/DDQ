@@ -46,14 +46,14 @@ program scanE
 
     do while ((iE0+(rank)).le.nE0)  
         !id = omp_get_thread_num ( )
-        write(*,*) "rank = ",rank
-        E0=E0min+(iE0+rank)*dE0
-        E0=wattcm22au(E0)
-        write(*,*) "iE0+(rank) " , iE0+(rank), "E0", E0
-	write(6554346,*) "iE0+(rank) " , iE0+(rank), "E0", E0
-        call travail(iE0+rank)
-        write(999654,*)(iE0+(rank))
-         iE0=iE0+size
+        if (iE0+(rank).le.nE0) then
+          write(*,*) "rank = ",rank
+          write(*,*) "iE0+(rank) " , iE0+(rank), "E0", E0
+	  write(6554346,*) "iE0+(rank) " , iE0+(rank), "E0", E0
+          call travail(iE0+rank)
+          write(999654,*)(iE0+(rank))
+          end if
+        iE0=iE0+size
     end do 
 
     write(*,*) "test fin de programme"
