@@ -58,7 +58,6 @@ program scanE
 
     write(*,*) "test fin de programme"
     close(6554346)
-    close(logfile)
     call MPI_FINALIZE(ierror)
     write(*,*) "ERROR AFTER MPI_FINALIZE = ",ierror
 end program scanE

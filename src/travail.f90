@@ -93,7 +93,7 @@ nt=int((tf-t0)/dt)
 allocate(t(nt))
 write(*,*) 'THIS IS A TEST 2! ', iE0
 do i=1,nt
-  t(i)=t0+(i-i)*dt
+  t(i)=t0+(i-1)*dt
 end do 
 !,t2,t3,clock_rate, clock_max
 !***********************************************************************
@@ -102,7 +102,7 @@ end do
 ! call system_clock ( t1, clock_rate, clock_max )
 call cpu_time ( btime )
 !write(*,*) "* Begining of the program ", btime
-    logfile=876325
+logfile=876325
 write(logfile,*) "Begining of the program ", btime
 !call readinputsub(tc,dw,tf)
 
@@ -117,15 +117,10 @@ write(logfile,*) "Begining of the program ", btime
   scut = 4.72d-1
     evbyau = 27.212d0
 
-
-open((iE0+1)*10000000)
-pbname = "set terminal png"
-write((iE0+1)*10000000,"(A70)") pbname
- ! 70000+iE0 rmoyen
-    ! 30000+iE0 dispersion
-write(charnum(1),'(I5)')10000+iE0
-write(*,*)"Charnum(1) = ", charnum(1)
-open(10000+iE0,name='pbound.'//charnum(1))
+! Output File list
+! 101 : pbound and field
+ 
+open(101,name=ADJUSTL(test)//'pbound.dat'
 
 write(charnum(1),'(I5)')10000+iE0
 write(*,*)"Charnum(1) = ", charnum(1)
@@ -221,6 +216,7 @@ do i=1,npos
   write(*,*) x(i),pot(1,i),pot(2,i)
 !write(10,101)x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),real(chi1(i)),aimag(chi1(i)),real(chi2(i)),aimag(chi2(i))
 enddo
+delr=x(2)-x(1)
 
 
 
@@ -239,7 +235,6 @@ enddo
 !	enddo
 ! close(1)
 
-write(*,*) 'THIS IS A TEST 11111111111111 !!!!!!!!!!!!! ', iE0
 
 
 ! *******************************************************************  	
@@ -262,12 +257,10 @@ write(*,*) 'THIS IS A TEST 11111111111111 !!!!!!!!!!!!! ', iE0
 ! enddo
  do j=1,npos
 	chi1init(j)=chi1in(j)
-        write(3736342,*) x(j),chi1init(j)
  enddo
 
 
 
-write(*,*) "LE TEST EST  FONCTIONNEL"
 !***********************************************************************
 ! 	      	Normalisation de la fonction d'onde initiale
 !***********************************************************************
@@ -281,6 +274,7 @@ write(*,*) "LE TEST EST  FONCTIONNEL"
    do l = 1, npos
          chi1(l) = chi1in(l)/dsqrt(normedeb)
          chi2(l) = chi2in(l)
+!********************************************************************
 	!write(1234567+iE0,*)x(l),dreal(chi1(l)),dimag(chi1(l))
 	!write(234579+iE0,*)x(l),dreal(chi2(l)),dimag(chi2(l))
    enddo
@@ -343,6 +337,7 @@ write(*,*) "int1tf", int1tf
       int3t0=0.d0  
       timeper = t0
  do i=1,nt
+!********************************************************************
     if (mod(i,100).eq.0) then
       write(*,*) i, "/" , nt , "t = ",t(i)
     end if
@@ -393,7 +388,7 @@ write(*,*) "int1tf", int1tf
 !write(logfile,*) "Rmoyen du iE0 : ", iE0 , " : fort." , 70000+iE0
 
 call cpu_time ( time2 )
-!write(*,*) "Time2 : ", time2
+write(*,*) "Time2 : ", time2
 ! PARTIE TRES LENTE DU PROGRAMME : CE CALCUL PREND PRESQUE 1 SEC PAR APPLICATION
 !	do j=1,npos
 !		chilie(j)=dcmplx(0d0,0d0)
@@ -415,12 +410,14 @@ call cpu_time ( time2 )
 	
 !	open(unit=2000+i+(ntps+2000)*ph)
 !	open(unit=2*ntps+5000+i+(ntps+2000)*ph)
+   write(5433634,*) t(i)
 	do j=1,npos
 		xmue=xmu12(j)*champ(i)
 		delta=(pot(2,j)-pot(1,j))**2+(2d0*xmue)**2
 		delta=dsqrt(delta)
 		vp1(j)=(pot(2,j)+pot(1,j)-delta)*0.5d0
 		vp2(j)=(pot(2,j)+pot(1,j)+delta)*0.5d0
+      write(5433634,*) x(j), pot(1,j), pot(2,j), vp1(j), vp2(j)
 		if (j.gt.ideb) then
 			vp1reel(j-ideb)=vp1(j)
 			vp2reel(j-ideb)=vp2(j)
@@ -459,6 +456,7 @@ call cpu_time ( time2 )
  write(80000+iE0,*) t(i),rclapet2(i)
  !write(200000+ph,*)t(i),rclapet1(i),rclapet2(i)
 
+!********************************************************************
 	call splitop(chi1, chi2, zetdt,pot,xmu12, npos, champ(i), delr, massreduite, delt)
 ! ajouter le calcul de int[1-2-3]t[0-f] ! FAIT
 !
@@ -471,6 +469,7 @@ call cpu_time ( time2 )
 !!!!!!!!!!!!!!
 !!!!!!!! Verifier le calcul du cut 
 !!!!!!!!!!!
+!********************************************************************
             call ZVEM(npos,chi1(1),1,zcutI(1),1,chi1(1),1)
             call ZVEM(npos,chi2(1),1,zcutI(1),1,chi2(1),1)
 !********************************************************************
@@ -483,7 +482,6 @@ call cpu_time ( time2 )
 	       do j = 1, npos
                   proj(j) = ep(n,j)*dreal(chi1(j))
                   proji(j) = ep(n,j)*dimag(chi1(j))
-                  write(123453245,'(4E23.8,2x,I3)') x(j),ep(n,j),dreal(chi1(j)),dimag(chi1(j)),n
 
                   
 	       end do
@@ -495,16 +493,8 @@ call cpu_time ( time2 )
 !			write(49,*)n,lieprobv
 !		endif
             end do
-            write(10000+iE0,'( 4E18.6E3,2X )') t(i), lieprob,champ(i)
-!write(logfile,*) "Pbount du iE0 : ", iE0 , " : fort." , 10000+iE0
-!            write(*,*) t(i), lieprob,champ(i)
+            write(101,'( 4E18.6E3,2X )') t(i), lieprob,champ(i)
 
-!write(*,*) "DIFF 2-1: ", time2-time1
-!write(*,*) "DIFF 3-2: ", time3-time2
-    if ((nt-i).le.100) then
-      pbfin=pbfin+lieprob
-      npbfin=npbfin+1
-  end if
   !open((iE0+1)*1000000+i)
   !do j=1,npos
   !  write((iE0+1)*1000000+i,*)x(j),cdabs(chi1(j))**2,cdabs(chi2(j))**2
