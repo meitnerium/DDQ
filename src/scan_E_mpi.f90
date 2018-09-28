@@ -49,7 +49,7 @@ program scanE
         if (iE0+(rank).le.nE0) then
           write(*,*) "rank = ",rank
           write(*,*) "iE0+(rank) " , iE0+(rank), "E0", E0
-	  write(6554346,*) "iE0+(rank) " , iE0+(rank), "E0", E0
+          write(6554346,*) "iE0+(rank) " , iE0+(rank), "E0", E0
           call travail(iE0+rank)
           write(999654,*)(iE0+(rank))
           end if

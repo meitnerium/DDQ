@@ -1,4 +1,4 @@
-subroutine travail(iE0)
+program ddq
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ! Calcul de propagations de paquets d'ondes par méthode de Split-Opérateur
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -12,7 +12,7 @@ use simps0n
 include 'mkl_dfti_examples.fi'
 
 !implicit none
-integer , INTENT(IN) :: iE0
+integer :: iE0,nE0
 integer :: npos,pulsetype,logfile,le0wattcm2,ntps,nt,v,id,nc
 character(LEN=50) :: title
 real(8) ::  wir,phase,tc,te,tf,delr,massreduite,dt,t0
@@ -81,21 +81,25 @@ character(LEN=2500) :: string
 integer :: k
 CHARACTER(2) FMT
 
-WRITE(test,'(I5.5)') iE0
-open(5,name="case_"//ADJUSTL(test)//"/input",status="old")
-namelist /iofile/ t0, pulsetype,E0,phase,w,dt,nc
+iE0=0
+!WRITE(test,'(I5.5)') iE0
+!write(*,*) "case_"//ADJUSTL(test)//"/input"
+!open(5,name="case_"//ADJUSTL(test)//"/input",status="old")
+namelist /iofile/ t0, pulsetype,E0,phase,w,dt,nc,npos,xmax
 read(5,iofile)
+phase=phase*MATH_PI
 
-open(6,name="input",status="old")
-namelist /iofile/ npos,xmax,nE0
-read(6,iofile)
+!open(6,name="input",status="old")
+!namelist /iofile/ npos,xmax,nE0
+!read(6,iofile)
 
+xmin=2.d-3
 
-
-
+v=19
 !TODO : change number of optical cycle (nc) in the input
 delt=dt
 wir=w
+write(*,*) "MATH_PI = ",MATH_PI
 tf=6.d0*(2.d0*MATH_PI/w)
 nt=int((tf-t0)/dt)
 allocate(t(nt))
@@ -128,7 +132,7 @@ write(logfile,*) "Begining of the program ", btime
 ! Output File list
 ! 101 : pbound and field
  
-open(101,name='case_'//ADJUSTL(test)//'/pbound.dat')
+open(101,name='pbound.dat')
 
 write(charnum(1),'(I5)')10000+iE0
 write(*,*)"Charnum(1) = ", charnum(1)
@@ -220,38 +224,49 @@ allocate(ep(v,npos))
 !WRITE(*,*) v+6
 !WRITE(FMT,'(I2)') v+6
 !do i=1,npos
-  read(10,"(" // ADJUSTL(FMT) // "(E28.20E3,4x))") x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),chi1in(i),chi2in(i)
+  !read(10,"(" // ADJUSTL(FMT) // "(E28.20E3,4x))") x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),chi1in(i),chi2in(i)
   !read(10) x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),chi1in(i),chi2in(i)
 !write(10,101)x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),real(chi1(i)),aimag(chi1(i)),real(chi2(i)),aimag(chi2(i))
 !enddo
 delr=x(2)-x(1)
 
+rc0 = 1.3989d0 !position du paquet d'onde à t0
+p0 = 0.0d0 !impulsion du paquet d'onde à t0
+alpha = 13.019d0 !paramètre pour chi1 et chi2
+
     requ=2.d0 !valeur de r à l'equilibre = 2*a0 (a0=1 en u.a)
     diss=2.7925d0/27.2d0 !potentiel de dissociation de H2+
     massreduite=918.0762887608628d0 !=masse proton/2 en u.a
-    write(*,*)"This is a test 2"
+    write(*,*)"This is a test 2.1"
+    write(*,*) xmax,xmin,npos
 
 delr=(xmax-xmin)/(npos-1)
 !read(*,*) test
+    !write(*,*)"This is a test 2.53"
         do i=1,npos
+    !write(*,*)"This is a test 2.53"
          x(i)=xmin+(i-1)*delr !création de l'axe des positions
         enddo
 
+    !write(*,*)"This is a test 2.53"
  do n=1,v
+    !write(*,*)"This is a test 2.53"
         do i=1,npos
+    !write(*,*)"This is a test 2.53"
           ep(n,i)=morse(diss,0.72d0,massreduite,requ,x(i),n-1) !construction des n etats vibrationnels sur la grille
           work1(i)=(dabs(ep(n,i)))**2
     enddo
+    !write(*,*)"This is a test 2.53"
 
           call simpson(npos,delr,work1,norme)
           ep(n,:)=ep(n,:)/sqrt(norme) !normalisation des etats vibrationnels
 
  enddo
-    write(*,*)"This is a test 3"
+    !write(*,*)"This is a test 3"
  call eval(chi1, chi2, delr, xmin, p0, rc0, alpha, npos)
-    write(*,*)"This is a test 4"
+    !write(*,*)"This is a test 4"
  call pot_spec(pot(1,:),pot(2,:),xmu12, npos,delr,xmin) !construction des 2 potentiels de H2+ et du moment dipolaire
-    write(*,*)"This is a test 5"
+    !write(*,*)"This is a test 5"
 
 
 
@@ -294,7 +309,8 @@ delr=(xmax-xmin)/(npos-1)
 !	chi2(l)=dcmplx(0d0,0d0)
 ! enddo
  do j=1,npos
-	chi1init(j)=cmplx(chi1in(j),0.d0)
+	chi1init(j)=chi1(j)
+   write(123556,*) x(j), chi1init(j)
  enddo
 
 
@@ -336,7 +352,7 @@ write(*,*) "Temps final : ", tf
     E0=wattcm22au(E0)
     E0wattcm2=au2wattcm2(E0)
     !write(logfile, *) " iE0 = ",  iE0  
-    !write(logfile,'(" E0 = ", E16.8 , " u.a. , ",  E16.8 , "  W/cm2" )') E0 , E0wattcm2 
+    write(*,'(" E0 = ", E16.8 , " u.a. , ",  E16.8 , "  W/cm2" )') E0 , E0wattcm2 
     !write(logfile,*) "phase = ", phase/MATH_PI , " Pi"
     !write(logfile,'(" tc = ", E16.8 , " a.u. ," , E16.8, " fs" )') tc , tc*tau2fs 
     !write(logfile,'(" te = " , E16.8 , " a.u. ," , E16.8, " fs" )') te , te*tau2fs 
@@ -358,12 +374,12 @@ dtper=dt/1024.d0
       timeper = t0
       do while(timeper.lt.tf)
          timeper = timeper + dtper
-         call calc_champ(champ2,wir,timeper,phase,nc,MATH_PI,E0,beta)
-         call calc_champ(champ1,wir,timeper-dtper,phase,nc,MATH_PI,E0,beta)
+         call calc_champ(champ2,wir,timeper,phase,nc,MATH_PI,E0)
+         call calc_champ(champ1,wir,timeper-dtper,phase,nc,MATH_PI,E0)
          call airesint (int1tf, int2tf, int3tf, dtper, champ1, champ2)
       end do
-      call calc_champ(champ1,wir,timeper,phase,nc,MATH_PI,E0,beta)
-      call calc_champ(champ2,wir,tf,phase,nc,MATH_PI,E0,beta)
+      call calc_champ(champ1,wir,timeper,phase,nc,MATH_PI,E0)
+      call calc_champ(champ2,wir,tf,phase,nc,MATH_PI,E0)
       call airesint(int1tf, int2tf, int3tf, tf-timeper, champ1, champ2)
 !********************************************************************
 !	Application du split operator-Ouverture de la boucle temps 
@@ -381,12 +397,12 @@ write(*,*) "int1tf", int1tf
     end if
       do while(timeper.lt.t(i))
          timeper = timeper + dtper
-         call calc_champ(champ2,wir,timeper,phase,nc,MATH_PI,E0,beta)
-         call calc_champ(champ1,wir,timeper-dtper,phase,nc,MATH_PI,E0,beta)
+         call calc_champ(champ2,wir,timeper,phase,nc,MATH_PI,E0)
+         call calc_champ(champ1,wir,timeper-dtper,phase,nc,MATH_PI,E0)
          call airesint (int1t0, int2t0, int3t0, dtper, champ1, champ2)
       end do
-      call calc_champ(champ1,wir,timeper,phase,nc,MATH_PI,E0,beta)
-      call calc_champ(champ2,wir,t(i),phase,nc,MATH_PI,E0,beta)
+      call calc_champ(champ1,wir,timeper,phase,nc,MATH_PI,E0)
+      call calc_champ(champ2,wir,t(i),phase,nc,MATH_PI,E0)
       call airesint(int1tf, int2tf, int3tf, t(i)-timeper, champ1, champ2)
 !********************************************************************
 !	Calcul des aires temporelles du champ 
@@ -405,7 +421,7 @@ write(*,*) "int1tf", int1tf
 
 !       end do
 !    end if
-    call calc_champ(champ(i),wir,t(i),phase,nc,MATH_PI,E0,beta)
+    call calc_champ(champ(i),wir,t(i),phase,nc,MATH_PI,E0)
     
 
 	do j=1,npos
@@ -427,7 +443,7 @@ write(*,*) "int1tf", int1tf
 !write(logfile,*) "Rmoyen du iE0 : ", iE0 , " : fort." , 70000+iE0
 
 call cpu_time ( time2 )
-write(*,*) "Time2 : ", time2
+!write(*,*) "Time2 : ", time2
 ! PARTIE TRES LENTE DU PROGRAMME : CE CALCUL PREND PRESQUE 1 SEC PAR APPLICATION
 !	do j=1,npos
 !		chilie(j)=dcmplx(0d0,0d0)
@@ -713,7 +729,7 @@ write(logfile,'(A120)') "Time of calculation  ", string
 1005  format(5(e16.8e3,2x))
 1006  format(6(e16.8e3,2x))
 1007  format(7(e16.8e3,2x))
-end subroutine travail
+end program ddq
 
 !filename='obs_'//job
 !open(60,file=filename,status='unknown',form='formatted')
