@@ -1,0 +1,1 @@
+ifort  -L"/opt/intel/composer_xe_2013.0.079/mkl/"/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -openmp -lpthread -g -CB -traceback -implicitnone -check all -debug all -gen-interfaces -warn interfaces -check uninit -i8 -real-size 64 -double-size 64 morse.o asymp.o potspec_maj.o spo_maj.o cmplxmath.o complex_1d_double_ex1.o  ddq.f90 -o ../bin/ddq

@@ -15,7 +15,7 @@ program write_init
     character(len=50) :: test
     CHARACTER(LEN=20) FMT
     open(5,name="input",status="old")
-    namelist /iofile/ npos,xmax
+    namelist /iofile/ npos,xmax,nE0
     read(5,iofile)
 
 
@@ -71,13 +71,17 @@ delr=(xmax-xmin)/(npos-1)
     write(*,*)"This is a test 4"
  call pot_spec(pot(1,:),pot(2,:),xmu12, npos,delr,xmin) !construction des 2 potentiels de H2+ et du moment dipolaire
     write(*,*)"This is a test 5"
+!open(10,file='init.fmt',access='DIRECT', recl=2+npos*(v+6))
 open(10,file='init.dat')
+!write(10)npos
+!write(10)v
 write(10,*)npos
 write(10,*)v
 WRITE(FMT,*) v+6
 do i=1,npos
   write(*,*) x(i),pot(1,i),pot(2,i)
-  WRITE(10,"(" // ADJUSTL(FMT) // "E18.6E3)") x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),chi1(i),chi2(i)
+  WRITE(10,"(" // ADJUSTL(FMT) // "(E28.20E3),4x)") x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),real(chi1(i)),real(chi2(i))
+  !WRITE(10) x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),real(chi1(i)),real(chi2(i))
 !write(10,101)x(i),(ep(n,i),n=1,v),pot(1,i),pot(2,i),xmu12(i),real(chi1(i)),aimag(chi1(i)),real(chi2(i)),aimag(chi2(i))
 enddo
 

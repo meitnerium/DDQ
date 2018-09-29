@@ -51,14 +51,14 @@ END SUBROUTINE simpson
       return
       end subroutine airesint
 
-    subroutine calc_champ(champ,wir,t,phase,nc,pi,E0,beta)
+    subroutine calc_champ(champ,wir,t,phase,nc,pi,E0)
         real(8) :: champ, wir, t, beginpulse, phase,pi,e,g,dere,derg,E0,beta
         integer :: nc
-        write(*,*) nc
+        !write(*,*) nc
         if (dabs(t).le.(dfloat(nc)*pi/wir)) then
-                e=dsin(wir*t+beta*t**2+phase)
+                e=dsin(wir*t+phase)
                 !dere=wir*dcos(wir*t+phase*pi)
-                dere=dcos(wir*t+beta*t**2+phase)
+                dere=dcos(wir*t+phase)
                 g=dcos(wir*t/(2*nc))**2
                 !derg=-wir/nc*dsin(wir*t/(2*nc))*dcos(wir*t/(2*nc))
                 derg=dsin(wir*t/(2*nc))*dcos(wir*t/(2*nc))
@@ -66,6 +66,7 @@ END SUBROUTINE simpson
         else
                 champ=0.d0
         end if
+        return
     end subroutine calc_champ
 
 
