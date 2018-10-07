@@ -1,1 +1,1 @@
-ifort write_init.f90 -o write_init  -g -CB -traceback -implicitnone  -debug all -gen-interfaces -warn interfaces potspec_maj.o spo_maj.o cmplxmath.o morse.o travail.o asymp.o
+ifort write_init.f90 -o ../bin/write_init  -g -CB -traceback -implicitnone  -debug all -gen-interfaces -warn interfaces potspec_maj.o spo_maj.o cmplxmath.o morse.o asymp.o

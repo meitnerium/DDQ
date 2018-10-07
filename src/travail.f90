@@ -87,7 +87,7 @@ namelist /iofile/ t0, pulsetype,E0,phase,w,dt,nc
 read(5,iofile)
 
 open(6,name="input",status="old")
-namelist /iofile/ npos,xmax,nE0
+namelist /iofile/ npos,xmax
 read(6,iofile)
 
 

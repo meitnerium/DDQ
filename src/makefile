@@ -7,10 +7,11 @@ MKL="/opt/intel/composer_xe_2013.0.079/mkl/"
 #FOPTS=-L$(MKL)/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -openmp -lpthread -g -CB -traceback -implicitnone  -debug all -gen-interfaces -warn interfaces 
 FOPTS=-L$(MKL)/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -openmp -lpthread -g -CB -traceback -implicitnone -check all -debug all -gen-interfaces -warn interfaces -check uninit -i8 -real-size 64 -double-size 64
 #FOPTS=-L$(MKL)/lib/intel64 -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -openmp -lpthread -g -CB -traceback -implicitnone -debug all -gen-interfaces -warn interfaces -i8 -real-size 64 -double-size 64
-all: ../bin/scanE 
+all: ../bin/ddq 
 
-../bin/scanE: scan_E.f90 asymp.o travail.o morse.o potspec_maj.o spo_maj.o cmplxmath.o pulse.o complex_1d_double_ex1.o
-	$(FC) $(FOPTS) morse.o asymp.o potspec_maj.o spo_maj.o cmplxmath.o complex_1d_double_ex1.o  travail.o scan_E.f90 -o ../bin/scanE
+../bin/ddq: ddq.f90 asymp.o morse.o potspec_maj.o spo_maj.o cmplxmath.o pulse.o complex_1d_double_ex1.o
+	$(FC) $(FOPTS) morse.o asymp.o potspec_maj.o spo_maj.o cmplxmath.o complex_1d_double_ex1.o  ddq.f90  -o ../bin/ddq
+
 travail.o: asymp.o travail.f90 morse.o potspec_maj.o spo_maj.o cmplxmath.o complex_1d_double_ex1.o
 	$(FC) $(FOPTS) -c asymp.o complex_1d_double_ex1.o pulse.o cmplxmath.o morse.o potspec_maj.o spo_maj.o travail.f90 	
 

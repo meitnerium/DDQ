@@ -150,3 +150,52 @@ module morse1
       end function morse
       end module morse1
 
+!*******************************************************************
+!
+!       Calcul du paquet d'onde initial
+!
+!*******************************************************************
+
+
+     subroutine eval(cw1, cw2, delr, rdeb,p0, rc0, alpha, npos)
+
+      integer npos
+      double complex cw1(npos), cw2(npos)
+      double precision delr, rdeb, p0, rc0, alpha
+      double precision pi, r
+      double complex cnul, cim, cpoi, cval, arg
+      integer l
+
+      cnul = dcmplx(0.d0,0.d0)
+      cim = dcmplx(0.d0,1.d0)
+      pi = 3.141592654d0
+      cpoi = cdsqrt(cdsqrt(dcmplx(2.d0*alpha/pi,0.d0)))
+      r = rdeb-delr
+      do l = 1, npos
+         r = r + delr
+         arg = dcmplx(-alpha*(r-rc0)**2, p0*(r-rc0))
+         cval = cpoi*cdexp(arg)
+         cw1(l) = cval
+         cw2(l) = cnul
+
+      end do
+
+      return
+      end
+
+!***************************************************************
+!               Calcul norme d'une fonction complexe
+!***************************************************************
+        subroutine simps(func, vint, delti, npl)
+
+      integer j, npl
+      double complex func(npl)
+      double precision  vint, delti
+
+      vint=0d0
+      do j = 1, npl-1
+         vint=vint+delti*sqrt(cdabs(func(j))**2)
+      end do
+      return
+      end
+
