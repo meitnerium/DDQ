@@ -7,18 +7,14 @@ use morse1
 use gen
 use pulse
 use asympto
-Use MKL_DFTI
 use simps0n
-include 'mkl_dfti_examples.fi'
 
-!implicit none
-integer :: iE0,nE0
+implicit none
 integer :: npos,pulsetype,logfile,le0wattcm2,ntps,nt,v,id,nc
 character(LEN=50) :: title
-real(8) ::  wir,phase,tc,te,tf,delr,massreduite,dt,t0
+real(8) ::  wir,tc,te
 !real(8) ::  x(npos),ep(v,npos),xmu12(npos)
 real(8),allocatable ::  x(:),ep(:,:),xmu12(:)
-real(8) :: E0,TVIB,w
 !complex(8) :: chi1in(npos), chi2in(npos)
 real(8),allocatable :: chi1in(:), chi2in(:)
 real(8) :: pbfin
@@ -44,34 +40,25 @@ complex(8),allocatable :: zcutA(:),zcutI(:)
 real(8) :: evbyau,spk
 !real(8) :: work2(4*npos),work3(4*npos),work4(4*npos), work5(4*npos)
 real(8),allocatable :: work2(:),work3(:),work4(:), work5(:)
-real(8) :: xmin, xmax, requ, diss, lieprobv,E0wattcm2,dk,cte,xk
+real(8) :: diss, lieprobv,E0wattcm2,dk,cte,xk
 real(8) :: normedeb, rc0
-!real(8) :: work1(npos),table1(npos), champ(nt)
 real(8),allocatable :: work1(:),table1(:), champ(:)
 real(8) :: projreal, projimag, lieprob
-!real(8),allocatable :: tablea(npos),worka(npos),workb(npos)
 real(8),allocatable :: tablea(:),worka(:),workb(:)
 complex(8) :: cun,cim,cnul
-!complex(8) :: chi1(npos),chi2(npos),zetdt(npos),ctemp(npos),chilie(npos),chi1init(npos)
 complex(8),allocatable :: chi1(:),chi2(:),zetdt(:),ctemp(:),chilie(:),chi1init(:)
-!complex(8) :: psik1(npos*4), psik2(npos*4)
 complex(8),allocatable :: psik1(:), psik2(:)
 
 real(8) :: alpha,p0,rdeb,xmue
-!real(8) :: proj(npos) ,proji(npos),auto_correl(nt)
 real(8),allocatable :: proj(:) ,proji(:),auto_correl(:)
 real(8) :: delt,pi,omega,  norme,norme1,norme2,periode,delta,sigma,tmax,f0
-!real(8) :: t(nt),vp1(npos),vp2(npos),kmoyen(nt),rmoyen(nt),rmoyenlie(nt),rclapet1(nt),rclapet2(nt)
 real(8),allocatable :: t(:),vp1(:),vp2(:),kmoyen(:),rmoyen(:),rmoyenlie(:),rclapet1(:),rclapet2(:)
 real(8) :: dissprob
-!real(8) :: dispers(nt)
 real(8),allocatable :: dispers(:)
 real(8) :: periodir,dw
-!real(8) :: pulset(nt),champir1(nt)
 real(8),allocatable :: pulset(:),champir1(:)
-!real(8),dimension(npos-ideb) :: vp1reel,vp2reel
 real(8),allocatable :: vp1reel(:),vp2reel(:)
-real(8) :: time1,time2,time3,btime,ftime,beta
+real(8) :: time1,time3,ftime,beta
 real(8) xnorm1, xnorm2, xnormk1, xnormk2
 character(LEN=120) :: pbname
 character(LEN=50) :: nomfichier
