@@ -180,9 +180,6 @@ program ddq
     write(*,*) "Begining of the program ", btime
 
 
-
-
-
     write(*,*) "Initial time (t0) = ",t0
     write(*,*) "Phase = ",phase,"*Pi"
     phase=phase*PI_8
