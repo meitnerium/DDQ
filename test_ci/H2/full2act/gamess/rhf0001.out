@@ -1,0 +1,29 @@
+----- GAMESS execution script 'rungms' -----
+This job is running on host labodang001
+under operating system Linux at Thu Aug 23 12:49:33 EDT 2018
+Available scratch disk space (Kbyte units) at beginning of the job is
+Filesystem     1K-blocks     Used Available Use% Mounted on
+/dev/sda1       49601260 33132292  13926276  71% /
+GAMESS temporary binary files will be written to /tmp
+GAMESS supplementary output files will be written to /tmp
+Copying input file H2/full2act/gamess/rhf0001.inp to your run's scratch directory...
+
+ Distributed Data Interface kickoff program.
+ Initiating 1 compute processes on 1 nodes to run the following command:
+ /opt/gamess/gamess.00.x H2/full2act/gamess/rhf0001 
+
+
+
+ ERROR OPENING PRE-EXISTING FILE INPUT,
+ ASSIGNED TO EXPLICIT FILE NAME /tmp/H2/full2act/gamess/rhf0001.F05,
+ PLEASE CHECK THE -SETENV- FILE ASSIGNMENTS IN YOUR -RUNGMS- SCRIPT.
+ EXECUTION OF GAMESS TERMINATED -ABNORMALLY- AT Thu Aug 23 12:49:33 2018
+ STEP CPU TIME =     0.00 TOTAL CPU TIME =          0.0 (      0.0 MIN)
+ TOTAL WALL CLOCK TIME=          0.0 SECONDS, CPU UTILIZATION IS   100.00%
+ ddikick.x: application process 0 quit unexpectedly.
+ ddikick.x: Sending kill signal to DDI processes.
+ ddikick.x: Execution terminated due to error(s).
+----- accounting info -----
+Files used on the master node labodang001 were:
+Thu Aug 23 12:49:35 EDT 2018
+0.0u 0.0s 0:02.09 3.3% 0+0k 0+8io 0pf+0w
