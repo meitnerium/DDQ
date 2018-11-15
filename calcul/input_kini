@@ -1,0 +1,12 @@
+ &iofile
+ t0=0.d0,
+ pulsetype=2,
+ E0=0.d0,
+ phase=0.d0,
+ dt=1.d0,
+ npos=16384,
+ w=4.3d-3
+ tf=1.6d4
+ v=16
+ kini=0.d0 !multiplie par pi
+ &end
