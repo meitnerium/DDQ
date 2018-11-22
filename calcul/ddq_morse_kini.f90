@@ -136,7 +136,7 @@ end do
 !t0=0d0
 
  dissprob=0.d0
-  r0cut = 34.026d0
+  r0cut = 6.d1!34.026d0
   scut = 4.72d-1
     evbyau = 27.212d0
 
@@ -519,6 +519,24 @@ dtper=dt/1024.d0
       call airesint(int1tf, int2tf, int3tf, tf-timeper, champ1, champ2)
 
 
+!********************************************************************
+!	    Calcul de probabilité de liaison initial
+!********************************************************************
+	 lieprob = 0.d0
+     do n = 1, v
+	       do j = 1, npos
+                  proj(j) = ep(n,j)*dreal(chi1(j))
+                  proji(j) = ep(n,j)*dimag(chi1(j))
+	       end do
+       call simpson(npos,delr,proj,projreal)
+       call simpson(npos,delr,proji,projimag)
+	   lieprobv(n)=(projreal**2 + projimag**2)
+	        lieprob = lieprob + lieprobv(n)
+            end do
+            write(101,lieprobnam) 0.d0, 0.d0,lieprob,(lieprobv(n),n=1,v)
+
+
+
 
 
 
@@ -566,8 +584,12 @@ write(105,'(a)') 'plt.tight_layout()'
 write(105,'(a)') 'plt.savefig("out/pbound.png")'
 write(105,'(a)') 'plt.close()'
 write(105,'(a)') ''
+write(105,'(a)') 'xini=[]'
+write(105,'(a)') 'yini=[]'
 write(105,'(a,i5,a)') 'for i in range(',v,'):'
 write(105,'(a)') '  y=np.loadtxt("out/pbound.dat",usecols=[i+3])'
+write(105,'(a)') '  xini.append(i)'
+write(105,'(a)') '  yini.append(y[0])'
 write(105,'(a)') '  plt.plot(x,y)'
 write(105,'(a)') '  plt.title("Probabilite liaison etat %d"%(i))'
 write(105,'(a)') '  plt.xlabel("Temps (ua)")'
@@ -575,6 +597,27 @@ write(105,'(a)') '  plt.ylabel("Probabilite")'
 write(105,'(a)') '  plt.tight_layout()'
 write(105,'(a)') '  plt.savefig("out/pbound%03d.png"%(i))'
 write(105,'(a)') '  plt.close()'
+write(105,'(a)') ''
+write(105,'(a)') 'plt.bar(xini,yini,align="center",color="orange")'
+write(105,'(a)') 'plt.title("Probabilite liaison initiale (%f%%)"%(1.0e2*np.sum(yini)))'
+write(105,'(a)') 'plt.xlabel("Etat de projection")'
+write(105,'(a)') 'plt.ylabel("Probabilite")'
+write(105,'(a)') 'plt.tight_layout()'
+write(105,'(a)') 'plt.savefig("out/pbini.png")'
+write(105,'(a)') 'plt.close()'
+write(105,'(a)') ''
+write(105,'(a)') 'x=np.loadtxt("out/wvfct.dat",usecols=[0])'
+write(105,'(a)') 'y1=np.loadtxt("out/wvfct.dat",usecols=[1])'
+write(105,'(a)') 'y2=np.loadtxt("out/wvfct.dat",usecols=[2])'
+write(105,'(a)') 'plt.plot(x,y1,label="real")'
+write(105,'(a)') 'plt.plot(x,y2,label="imag")'
+write(105,'(a)') 'plt.title("Initial wavepacket")'
+write(105,'(a)') 'plt.xlabel("Distance (bohrs)")'
+write(105,'(a)') 'plt.ylabel("Relative weight")'
+write(105,'(a)') 'plt.xlim(0,10)'
+write(105,'(a)') 'plt.tight_layout()'
+write(105,'(a)') 'plt.savefig("out/wvfct.png")'
+write(105,'(a)') 'plt.close()'
 
 write(*,*) "int1tf", int1tf
       int1t0=0.d0  
