@@ -156,7 +156,10 @@ for nt in range(len(time.value)):
         #                          potH2.value[0, 1][ix]],
         #                         [potH2.value[1, 0][ix]*efield.value[nt],
         #                         [potH2.value[1, 1][ix]]]]))
-        thet = 0.5
+        if (np.abs(potH2.value[0, 1][ix]*efield.value[nt]) > 1.E-16):
+            thet = 0.5 * np.atan((2.0 * potH2.value[0, 1][ix]*efield.value[nt]) / (potH2.value[1, 1][ix] - potH2.value[0, 0][ix]))
+        else:
+            thet = 0.
         cwtemp = np.cos(thet) * cw1[ix] - np.sin(thet) * cw2[ix]
         cw2[ix] = np.sin(thet) * cw1[ix] + np.cos(thet) * cw2[ix]
         cw1[ix] = cwtemp
@@ -167,23 +170,31 @@ for nt in range(len(time.value)):
         #cwtemp = np.cos(thet) * cw1[ix] + np.sin(thet) * cw2[ix]
         #cw2[ix] = -np.sin(thet) * cw1[ix] + np.cos(thet) * cw2[ix]
         #cw1[ix] = cwtemp
-    cw1_conj = np.fft.fft(cw1)
-    cw2_conj = np.fft.fft(cw2)
+    cw1_conj = np.fft.fftshift(np.fft.fft(cw1))*etdt
+    cw2_conj = np.fft.fftshift(np.fft.fft(cw2))*etdt
     #fourier = np.fft.fft(potH2.grid.value)
     plt.plot(abs(cw1_conj)**2.0)
     plt.savefig("cw_fourier_"+str(nt)+".png")
     plt.close()
-    for ix in range(len(potH2.value[0, 0])):
-        cw1_conj[ix] = cw1_conj[ix] * (etdt[ix])
-        cw2_conj[ix] = cw2_conj[ix] * (etdt[ix])
+    plt.plot(tpot[0])
+    plt.plot(tpot[1])
+    plt.savefig("tpot_" + str(nt) + ".png")
+    plt.close()
+    #for ix in range(len(potH2.value[0, 0])):
+    #    cw1_conj[ix] = cw1_conj[ix] * (etdt[ix])
+    #    cw2_conj[ix] = cw2_conj[ix] * (etdt[ix])
         #if (nt % 100 == 0):
         #    plt.plot(potH2.grid.value, np.abs(cw1)**2.0)
         #    plt.savefig("cwfft"+str(nt)+".png")
         #    plt.close()
-    cw1 = np.fft.ifft(cw1_conj)
-    cw2 = np.fft.ifft(cw2_conj)
+    cw1 = np.fft.ifft(np.fft.ifftshift(cw1_conj))
+    cw2 = np.fft.ifft(np.fft.ifftshift(cw2_conj))
     for ix in range(len(potH2.value[0, 0])):
-        thet = 0.5
+        if (np.abs(potH2.value[0, 1][ix] * efield.value[nt]) > 1.E-16):
+            thet = 0.5 * np.atan(
+                (2.0 * potH2.value[0, 1][ix] * efield.value[nt]) / (potH2.value[1, 1][ix] - potH2.value[0, 0][ix]))
+        else:
+            thet = 0.
         cwtemp = np.cos(thet) * cw1[ix] - np.sin(thet) * cw2[ix]
         cw2[ix] = np.sin(thet) * cw1[ix] + np.cos(thet) * cw2[ix]
         cw1[ix] = cwtemp
