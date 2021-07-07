@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import simps
 
+from scipy.special import eval_laguerre
 class Grid():
     def __init__(self,value, ndim=1, dim=[1024],name=["X"],unit=["u.a."]):
         self.ndim = ndim
@@ -33,7 +34,8 @@ def morse_nu(xmu,smalla,diss,nu,r,requ,e0):
     arg=np.exp(-smalla*(r-requ))
     x=2.0*bigc*arg
     m = 2*(int(bigc)-nu)-1
-    morse = np.polynomial.laguerre.Laguerre() #coef, domain=None, window=None)
+    
+    morse = eval_laguerre(nu, r, out=None) #np.polynomial.laguerre.lagval(r,(1)) #coef, domain=None, window=None)
     morse = morse * (x**(int(bigc)))
     morse = morse / (x**nu)
     morse = morse / np.sqrt(x)
@@ -128,6 +130,6 @@ plt.close()
 dt = time.value[1]-time.value[0]
 print("dt=",dt)
 masse=918.0762887608628 #!=masse reduite de proton/2 en u.a
-etatv = morse_nu(masse,0.72,2.79250/27.20,0,x.value,2.0,0)
+etatv = morse_nu(masse,0.72,2.79250/27.20,3,x.value,2.0,0)
 plt.plot(etatv)
 plt.show()
