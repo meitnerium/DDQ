@@ -27,7 +27,7 @@ class Field():
 
 def laguerrel(a,n,x):
       lagtmp=0.0
-      for j in range(n):
+      for j in range(n+1):
           lagtmp=lagtmp+(1.0/np.math.factorial(j))*((-x)**j)*np.math.factorial(n+a)/(np.math.factorial(n-j)*np.math.factorial(j+a))
       
       return lagtmp
@@ -51,7 +51,7 @@ def morse_nu(xmu,smalla,diss,nu,r,requ):
         c =(0,0,0,1)
     elif nu == 4 :
         c =(0,0,0,0,1)
-    morse = laguerrel(m,nu,r)
+    morse = laguerrel(m,nu,x)
     #morse = eval_genlaguerre(nu, 0, r) #np.polynomial.laguerre.lagval(r,(1)) #coef, domain=None, window=None)
     plt.plot(morse)
     plt.title("test morse")
