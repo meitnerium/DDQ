@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.integrate import simps
 
-from scipy.special import eval_laguerre
+from scipy.special import eval_laguerre, eval_genlaguerre
 class Grid():
     def __init__(self,value, ndim=1, dim=[1024],name=["X"],unit=["u.a."]):
         self.ndim = ndim
@@ -25,8 +25,15 @@ class Field():
         self.e0 = e0
         self.value = value
 
+def laguerrel(a,n,x):
+      lagtmp=0.0
+      for j in range(n):
+          lagtmp=lagtmp+(1.0/np.math.factorial(j))*((-x)**j)*np.math.factorial(n+a)/(np.math.factorial(n-j)*np.math.factorial(j+a))
+      
+      return lagtmp
 
-def morse_nu(xmu,smalla,diss,nu,r,requ,e0):
+
+def morse_nu(xmu,smalla,diss,nu,r,requ):
     biga = (np.sqrt(2.0*xmu))/smalla
     bigc = biga*np.sqrt(diss)
     enu = -((bigc-nu-.5)**2.0)/biga**2.0
@@ -34,8 +41,21 @@ def morse_nu(xmu,smalla,diss,nu,r,requ,e0):
     arg=np.exp(-smalla*(r-requ))
     x=2.0*bigc*arg
     m = 2*(int(bigc)-nu)-1
-    
-    morse = eval_laguerre(nu, r, out=None) #np.polynomial.laguerre.lagval(r,(1)) #coef, domain=None, window=None)
+    if nu == 0 :
+        c = (1)
+    elif nu == 1 :
+        c =(0,1)
+    elif nu == 2 :
+        c =(0,0,1)
+    elif nu == 3 :
+        c =(0,0,0,1)
+    elif nu == 4 :
+        c =(0,0,0,0,1)
+    morse = laguerrel(m,nu,r)
+    #morse = eval_genlaguerre(nu, 0, r) #np.polynomial.laguerre.lagval(r,(1)) #coef, domain=None, window=None)
+    plt.plot(morse)
+    plt.title("test morse")
+    plt.show()
     morse = morse * (x**(int(bigc)))
     morse = morse / (x**nu)
     morse = morse / np.sqrt(x)
@@ -130,6 +150,15 @@ plt.close()
 dt = time.value[1]-time.value[0]
 print("dt=",dt)
 masse=918.0762887608628 #!=masse reduite de proton/2 en u.a
-etatv = morse_nu(masse,0.72,2.79250/27.20,3,x.value,2.0,0)
+etatv = morse_nu(masse,0.72,2.79250/27.20,6,x.value,2.0)
 plt.plot(etatv)
 plt.show()
+
+
+maxv = 12
+etatv = np.zeros((maxv,len(x.value)))
+for iv in range(maxv):
+    print("iv: ",iv)
+    etatv[iv] = morse_nu(masse,0.72,2.79250/27.20,iv,x.value,2.0)
+    plt.plot(etatv[iv])
+    plt.show()
