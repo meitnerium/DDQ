@@ -150,15 +150,27 @@ plt.close()
 dt = time.value[1]-time.value[0]
 print("dt=",dt)
 masse=918.0762887608628 #!=masse reduite de proton/2 en u.a
-etatv = morse_nu(masse,0.72,2.79250/27.20,6,x.value,2.0)
-plt.plot(etatv)
-plt.show()
 
+    
+cw1,cw2 = eval(0.0,2.0,1.0,  x.value)
 
-maxv = 12
+maxv = 19
+coeff = np.zeros(maxv)
 etatv = np.zeros((maxv,len(x.value)))
 for iv in range(maxv):
     print("iv: ",iv)
     etatv[iv] = morse_nu(masse,0.72,2.79250/27.20,iv,x.value,2.0)
+    coeff[iv] = simps(etatv[iv]*cw1,x=potH2.grid.value)
+    print("coeff("+str(iv)+") : "+str(coeff[iv]))
     plt.plot(etatv[iv])
     plt.show()
+
+wp = np.zeros(len(x.value))
+t=0
+for iv in range(maxv):
+    wp = wp + coeff[iv]*etatv[iv]
+plt.plot(np.abs(wp)**2.0)
+plt.show()
+
+norm1 = simps(np.abs(wp[:]**2.0),x=potH2.grid.value)
+print("wp norm : "+str(norm1))
