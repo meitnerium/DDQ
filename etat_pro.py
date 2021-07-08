@@ -36,7 +36,7 @@ def laguerrel(a,n,x):
 def morse_nu(xmu,smalla,diss,nu,r,requ):
     biga = (np.sqrt(2.0*xmu))/smalla
     bigc = biga*np.sqrt(diss)
-    enu = -((bigc-nu-.5)**2.0)/biga**2.0
+    enu = -((bigc-nu-.5)**2.0)/ biga**2.0
     alpha = bigc-nu-0.50
     arg=np.exp(-smalla*(r-requ))
     x=2.0*bigc*arg
@@ -53,9 +53,9 @@ def morse_nu(xmu,smalla,diss,nu,r,requ):
         c =(0,0,0,0,1)
     morse = laguerrel(m,nu,x)
     #morse = eval_genlaguerre(nu, 0, r) #np.polynomial.laguerre.lagval(r,(1)) #coef, domain=None, window=None)
-    plt.plot(morse)
-    plt.title("test morse")
-    plt.show()
+    #plt.plot(morse)
+    #plt.title("test morse")
+    #plt.show()
     morse = morse * (x**(int(bigc)))
     morse = morse / (x**nu)
     morse = morse / np.sqrt(x)
@@ -66,7 +66,9 @@ def morse_nu(xmu,smalla,diss,nu,r,requ):
 
     norm = np.sqrt(norm)
     morse = morse*norm
-    return morse
+    nu0 = smalla/2*np.pi*np.sqrt(2*diss/xmu)
+    E = nu0*(nu + 0.5) - nu0*(nu + 0.5)**2.0/(4*diss)
+    return E,morse
 
 
 def morse(z0,s,r,req,x1):
@@ -155,22 +157,29 @@ masse=918.0762887608628 #!=masse reduite de proton/2 en u.a
 cw1,cw2 = eval(0.0,2.0,1.0,  x.value)
 
 maxv = 19
-coeff = np.zeros(maxv)
+coeff = np.zeros(maxv, dtype=np.complex64)
+E = np.zeros(maxv)
 etatv = np.zeros((maxv,len(x.value)))
 for iv in range(maxv):
     print("iv: ",iv)
-    etatv[iv] = morse_nu(masse,0.72,2.79250/27.20,iv,x.value,2.0)
+    E[iv],etatv[iv] = morse_nu(masse,0.72,2.79250/27.20,iv,x.value,2.0)
     coeff[iv] = simps(etatv[iv]*cw1,x=potH2.grid.value)
     print("coeff("+str(iv)+") : "+str(coeff[iv]))
-    plt.plot(etatv[iv])
-    plt.show()
+    #plt.plot(etatv[iv])
+    #plt.show()
 
 wp = np.zeros(len(x.value))
-t=0
-for iv in range(maxv):
-    wp = wp + coeff[iv]*etatv[iv]
-plt.plot(np.abs(wp)**2.0)
-plt.show()
+tgrid=np.linspace(0, 2000, 2000)
+for it in range(len(tgrid)):
+    t=tgrid[it]
+    for iv in range(maxv):
+        wp = wp + np.exp(-1j*E[iv]*t)*coeff[iv]*etatv[iv]
+    plt.plot(np.abs(wp)**2.0)
+    #plt.show()
+    plt.savefig('wt_'+str(it)+'.png')
+    plt.close()
 
 norm1 = simps(np.abs(wp[:]**2.0),x=potH2.grid.value)
 print("wp norm : "+str(norm1))
+
+
